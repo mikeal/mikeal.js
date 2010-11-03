@@ -1,0 +1,221 @@
+html {font: normal 110% OFL Sorts Mill GoudyRegular;}
+
+@font-face {
+  /* Regular */
+  font-family: "OFL Sorts Mill GoudyRegular";
+  src: url('http://themes.googleusercontent.com/font?kit=9ZZVVBRCceNnPBXqWLH8IBeHOylGMxdcwbe4vXI079w') format('truetype');
+  font-weight:  400;
+  font-style:   normal;
+  font-variant: normal;
+  font-stretch: normal;
+}
+
+@font-face {
+  /* Normal */
+  font-family: "Chunkfive";
+  src: url("/fonts/Chunkfive-webfont.ttf") format("truetype");
+  font-weight:  400;
+  font-style:   normal;
+  font-variant: normal;
+  font-stretch: normal;
+}
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: normal;
+  src: url('http://themes.googleusercontent.com/font?kit=7bMKuoy6Nh0ft0SHnIGMuaCWcynf_cDxXwCLxiixG1c') format('truetype');
+}
+
+@font-face {
+  font-family: 'IM Fell English';
+  font-style: normal;
+  font-weight: normal;
+  src: local('IM FELL English Roman'), local('IM_FELL_English_Roman'), url('http://themes.googleusercontent.com/font?kit=xwIisCqGFi8pff-oa9uSVHGNmx1fDm-u2eBJHQkdrmk') format('truetype');
+}
+
+@font-face {
+  font-family: 'Josefin Sans Std Light';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Josefin Sans Std Light'), local('JosefinSansStd-Light'), url('http://themes.googleusercontent.com/font?kit=doRWK9Qks0OQGenH-kW8ngz2EdV-DdurKoLOmiOgX_w') format('truetype');
+}
+
+a {text-decoration:none; color:#0276FD;}
+
+div.main-title { font-size:83px; text-align:center;
+                 font-family:IM Fell English; color:#383838;
+                 margin-bottom:0px; padding-bottom:0px;
+                 }
+
+div.container {width:100%;}
+div.left-space {float:left; width:20%;}
+div.right-space {float:left; width:20%;}
+div.content {float:left; width:60%; padding-bottom:20px;}
+div.spacer {clear:both;}
+
+div.post-title {font-size:35px; font-family:Josefin Sans Std Light;}
+div.post-created-date {float:right; font-size: 110%; font-style:italic;}
+div.post-body {word-wrap:break-word;}
+div.info-cell {width:25%; float:left; text-align:center; font-family:IM Fell English;}
+div.mikeal-info {margin-top:0px; padding-bottom:30px;}
+
+hr.blogsep {
+  border:0px;
+  background-color:black;
+  height:1px;
+  margin-bottom:40px;
+}
+
+span.selected-sec { 
+  background-color: #DCDCDC; 
+  padding: 0px 3px 0px 3px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+span.logo a:link, span.logo a:visited {
+  color:#262626;
+}
+span.couchone {
+  font-family:Chunkfive;
+  size:110%;
+  margin-bottom:0px;
+}
+
+span.linkified {
+  cursor:pointer;
+}
+
+span.load-more {
+  cursor:pointer;
+  color:#0276FD;
+}
+
+div.post-entry {
+  padding-bottom: 50px;
+}
+
+div.post-title {
+  font-weight:bold;
+}
+div.post-title a:link, div.post-title a:visited {
+  color:#262626;
+}
+
+a.admin-link, a.admin-link a:visited, a.admin-link a:link {
+  position:absolute;
+  right:10px;
+  top:5px;
+  color:#800080;
+}
+
+span.edit-link {
+  color:#800080;
+  padding-left: 8px;
+  font-size:15px;
+  cursor: pointer;
+  vertical-align:center;
+}
+
+/* editor */
+
+div#post-editor {
+  width:100%;
+}
+div#post-editor div#post-editor-editor {
+  width:50%;
+  float:left;
+}
+div#post-editor input, div#post-editor textarea {
+  width:100%;
+} 
+div#post-editor input {
+  font-size:35px; font-family:Josefin Sans Std Light;
+}
+div#post-editor textarea {
+  font: normal 95% OFL Sorts Mill GoudyRegular;
+}
+
+div#post-editor div#post-editor-preview {
+  width:48%;
+  float:left;
+  padding-left:2%;
+}
+
+span.save-button { 
+  background-color: #DCDCDC; 
+  padding: 0px 3px 0px 3px;
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+  cursor:pointer;
+  color:#FF3D0D;
+}
+
+/*shjs syntax highlighting */
+
+pre.sh_sourceCode {
+  background-color: white;
+  color: black;
+  font-style: normal;
+  font-weight: normal;
+}
+
+pre.sh_sourceCode .sh_keyword { color: blue; font-weight: bold; }           /* language keywords */
+pre.sh_sourceCode .sh_type { color: darkgreen; }                            /* basic types */
+pre.sh_sourceCode .sh_usertype { color: teal; }                             /* user defined types */
+pre.sh_sourceCode .sh_string { color: red; font-family: Inconsolata, monospace; }        /* strings and chars */
+pre.sh_sourceCode .sh_regexp { color: orange; font-family: Inconsolata, monospace; }     /* regular expressions */
+pre.sh_sourceCode .sh_specialchar { color: pink; font-family: Inconsolata, monospace; }  /* e.g., \n, \t, \\ */
+pre.sh_sourceCode .sh_comment { color: brown; font-style: italic; }         /* comments */
+pre.sh_sourceCode .sh_number { color: purple; }                             /* literal numbers */
+pre.sh_sourceCode .sh_preproc { color: darkblue; font-weight: bold; }       /* e.g., #include, import */
+pre.sh_sourceCode .sh_symbol { color: darkred; }                            /* e.g., <, >, + */
+pre.sh_sourceCode .sh_function { color: black; font-weight: bold; }         /* function calls and declarations */
+pre.sh_sourceCode .sh_cbracket { color: red; }                              /* block brackets (e.g., {, }) */
+pre.sh_sourceCode .sh_todo { font-weight: bold; background-color: cyan; }   /* TODO and FIXME */
+
+/* Predefined variables and functions (for instance glsl) */
+pre.sh_sourceCode .sh_predef_var { color: darkblue; }
+pre.sh_sourceCode .sh_predef_func { color: darkblue; font-weight: bold; }
+
+/* for OOP */
+pre.sh_sourceCode .sh_classname { color: teal; }
+
+/* line numbers (not yet implemented) */
+pre.sh_sourceCode .sh_linenum { color: black; font-family: Inconsolata, monospace; }
+
+/* Internet related */
+pre.sh_sourceCode .sh_url { color: blue; text-decoration: underline; font-family: Inconsolata, monospace; }
+
+/* for ChangeLog and Log files */
+pre.sh_sourceCode .sh_date { color: blue; font-weight: bold; }
+pre.sh_sourceCode .sh_time, pre.sh_sourceCode .sh_file { color: darkblue; font-weight: bold; }
+pre.sh_sourceCode .sh_ip, pre.sh_sourceCode .sh_name { color: darkgreen; }
+
+/* for Prolog, Perl... */
+pre.sh_sourceCode .sh_variable { color: darkgreen; }
+
+/* for LaTeX */
+pre.sh_sourceCode .sh_italics { color: darkgreen; font-style: italic; }
+pre.sh_sourceCode .sh_bold { color: darkgreen; font-weight: bold; }
+pre.sh_sourceCode .sh_underline { color: darkgreen; text-decoration: underline; }
+pre.sh_sourceCode .sh_fixed { color: green; font-family: Inconsolata, monospace; }
+pre.sh_sourceCode .sh_argument { color: darkgreen; }
+pre.sh_sourceCode .sh_optionalargument { color: purple; }
+pre.sh_sourceCode .sh_math { color: orange; }
+pre.sh_sourceCode .sh_bibtex { color: blue; }
+
+/* for diffs */
+pre.sh_sourceCode .sh_oldfile { color: orange; }
+pre.sh_sourceCode .sh_newfile { color: darkgreen; }
+pre.sh_sourceCode .sh_difflines { color: blue; }
+
+/* for css */
+pre.sh_sourceCode .sh_selector { color: purple; }
+pre.sh_sourceCode .sh_property { color: blue; }
+pre.sh_sourceCode .sh_value { color: darkgreen; font-style: italic; }
+
+/* other */
+pre.sh_sourceCode .sh_section { color: black; font-weight: bold; }
+pre.sh_sourceCode .sh_paren { color: red; }
+pre.sh_sourceCode .sh_attribute { color: darkgreen; }
