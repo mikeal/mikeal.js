@@ -50,10 +50,12 @@ var getPostHtml = function (doc) {
       '<div class="post-title">' + 
         '<a href="/post/' + doc._id + '">' + doc.title + '</a>' +
       '</div>' +
-      '<div class="post-created-date">' + prettyDate(doc.created) + '</div>' +
-      '<div class="spacer"></div>' +
-      '<div class="post-body-container">' +
-        '<div class="post-body">' + doc.body_html + '</div>' +
+      '<div id="post-cell">' +
+        '<div class="post-created-date">' + prettyDate(doc.created) + '</div>' +
+        '<div class="spacer"></div>' +
+        '<div class="post-body-container">' +
+          '<div class="post-body">' + doc.body_html + '</div>' +
+        '</div>' +
       '</div>' +
     '</div>'
   )
@@ -98,15 +100,69 @@ app.index = function () {
   
   setupSections('blog');
   $('#content').html('');
-  var container = $('<div class="blog-container"></div>').appendTo('#content');  
+  var container = $('<div class="blog-container"></div>').appendTo('#content')
+    , rightside = $("#sidebar-right")  
+    ;
+    
+  var flowcarrots = function (i, n) {
+    $('div.post-entry').each(function (i, n) {
+      var top = $(n).position().top
+      n.collapse.css('top', top)
+      n.expand.css('top', top)
+    })
+    var farthest = 0;
+    $('span.collapse').each(function(i,n) {
+      var l = $(n).position().left
+      if (l > farthest) farthest = l
+    })
+    $('span.expand').each(function(i,n) {
+      var l = $(n).position().left
+      if (l > farthest) farthest = l
+    })
+    $('span.collapse').css('left', farthest);
+    $('span.expand').css('left', farthest);
+  }
   
   var getPosts = function () {
     var url = '_view/postsByCreated?'+$.param({include_docs:true, descending:true, limit:10, skip:skip});
     request({url:url}, function (err, resp) {
       if (err) throw err
       for (var i=0;i<resp.rows.length;i++) {
-        var x = getPostHtml(resp.rows[i].doc, container).appendTo(container);
-        container.append('<hr class="blogsep"></hr>')
+        (function () {
+          var blogpost = getPostHtml(resp.rows[i].doc, container).appendTo(container);
+
+          var top = blogpost.position().top
+
+          var expand = $('<span class="expand">▲</span>')
+          .click(function () {
+            $(this).hide();
+            expand.collapse.show();
+            blogpost.find('div#post-cell').show();
+            flowcarrots();
+          })
+          .hide()
+          .css('top', top)
+          .appendTo('#sidebar-right')
+          ;
+
+          var collapse = $('<span class="collapse">▼</span>')
+          .click(function () {
+            $(this).hide();
+            collapse.expand.show();
+            blogpost.find('div#post-cell').hide();
+            flowcarrots();
+          })
+          .css('top', top)
+          .appendTo("#sidebar-right")
+          ;
+          
+          collapse.expand = expand
+          expand.collapse = collapse
+          blogpost.get(0).collapse = collapse
+          blogpost.get(0).expand = expand
+
+          blogpost.find('div#post-cell').append('<hr class="blogsep"></hr>')
+        })()
       }
       $('<div><span class="load-more">Load 10 more posts</span></div>').appendTo(container).click(function () {
         $('span.load-more').remove();

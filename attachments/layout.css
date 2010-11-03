@@ -64,7 +64,9 @@ hr.blogsep {
   background-color:black;
   height:1px;
   margin-bottom:40px;
+  margin-top:40px;
 }
+
 
 span.selected-sec { 
   background-color: #DCDCDC; 
@@ -91,8 +93,19 @@ span.load-more {
   color:#0276FD;
 }
 
+span.collapse {
+  position:absolute;
+  cursor:pointer;
+  color:#666666;
+}
+span.expand {
+  position:absolute;
+  cursor:pointer;
+  color:#666666;
+}
+
 div.post-entry {
-  padding-bottom: 50px;
+  padding-bottom: 20px;
 }
 
 div.post-title {
