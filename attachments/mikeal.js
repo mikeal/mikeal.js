@@ -20,11 +20,12 @@ var request = function (options, callback) {
  * Licensed under the MIT license.
  */
 function prettyDate(time) {
-	var date = new Date((time || "").replace(/-/g,"/").replace(/[TZ]/g," "))
-		, diff = (((new Date()).getTime() - date.getTime()) / 1000)
-		, day_diff = Math.floor(diff / 86400)
-		;
-	
+  if (time.indexOf('.') !== -1) time = time.slice(0, time.indexOf('.'))
+  
+	var date = new Date((time || "").replace(/-/g,"/").replace(/[TZ]/g," ")),
+  		diff = (((new Date()).getTime() - date.getTime()) / 1000),
+  		day_diff = Math.floor(diff / 86400);
+  
 	if ( day_diff >= 31) return day_diff + ' days ago';
 		
 	if ( isNaN(day_diff) || day_diff < 0 || day_diff >= 31 ) return;
