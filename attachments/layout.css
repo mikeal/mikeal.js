@@ -1,4 +1,4 @@
-html {font: normal 110% OFL Sorts Mill GoudyRegular;}
+html {font: normal 110% Molengo;}
 
 @font-face {
   /* Regular */
@@ -10,15 +10,6 @@ html {font: normal 110% OFL Sorts Mill GoudyRegular;}
   font-stretch: normal;
 }
 
-@font-face {
-  /* Normal */
-  font-family: "Chunkfive";
-  src: url("/fonts/Chunkfive-webfont.ttf") format("truetype");
-  font-weight:  400;
-  font-style:   normal;
-  font-variant: normal;
-  font-stretch: normal;
-}
 @font-face {
   font-family: 'Inconsolata';
   font-style: normal;
@@ -40,6 +31,26 @@ html {font: normal 110% OFL Sorts Mill GoudyRegular;}
   src: local('Josefin Sans Std Light'), local('JosefinSansStd-Light'), url('http://themes.googleusercontent.com/font?kit=doRWK9Qks0OQGenH-kW8ngz2EdV-DdurKoLOmiOgX_w') format('truetype');
 }
 
+@font-face {
+	font-family: 'Molengo';
+	src: url('/fonts/Molengo-Regular-webfont.eot');
+	src: local('☺'), url('/fonts/Molengo-Regular-webfont.woff') format('woff'), 
+	     url('/fonts/Molengo-Regular-webfont.ttf') format('truetype'), 
+	     url('/fonts/Molengo-Regular-webfont.svg#webfont0CEC85KT') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+  /* Normal */
+  font-family: "Chunkfive";
+  src: url("/fonts/Chunkfive-webfont.ttf") format("truetype");
+  font-weight:  400;
+  font-style:   normal;
+  font-variant: normal;
+  font-stretch: normal;
+}
+
 a {text-decoration:none; color:#0276FD;}
 
 div.main-title { font-size:83px; text-align:center;
@@ -49,12 +60,15 @@ div.main-title { font-size:83px; text-align:center;
 
 div.container {width:100%;}
 div.left-space {float:left; width:20%;}
+div.mikeal-info div.left-space {
+  height:1px;
+}
 div.right-space {float:left; width:20%;}
 div.content {float:left; width:60%; padding-bottom:20px;}
 div.spacer {clear:both;}
 
 div.post-title {font-size:35px; font-family:Josefin Sans Std Light;}
-div.post-created-date {float:right; font-size: 110%; font-style:italic;}
+div.post-created-date {float:right; font-size: 110%; font: italic 120% OFL Sorts Mill GoudyRegular;}
 div.post-body {word-wrap:break-word;}
 div.info-cell {width:25%; float:left; text-align:center; font-family:IM Fell English;}
 div.mikeal-info {margin-top:0px; padding-bottom:30px;}
@@ -67,6 +81,16 @@ hr.blogsep {
   margin-top:40px;
 }
 
+span#expand-all {
+  position:absolute;
+  cursor:pointer;
+  color:#666666;
+}
+span#expand-all-text {
+  position:absolute;
+  color:#666666;
+  font-size:14px;
+}
 
 span.selected-sec { 
   background-color: #DCDCDC; 
@@ -153,6 +177,10 @@ div#post-editor div#post-editor-preview {
   width:48%;
   float:left;
   padding-left:2%;
+}
+
+div#post-editor div#shortname {
+  padding-bottom:20px;
 }
 
 span.save-button { 

@@ -20,14 +20,15 @@ var request = function (options, callback) {
  * Licensed under the MIT license.
  */
 function prettyDate(time) {
-  if (time.indexOf('.') !== -1) time = time.slice(0, time.indexOf('.'))
-  
+  if (time.indexOf('.') !== -1) time = time.slice(0, time.indexOf('.'))+'Z'
 	var date = new Date((time || "").replace(/-/g,"/").replace(/[TZ]/g," ")),
+	    date = new Date(date.getTime() - (date.getTimezoneOffset() * 1000 * 60))
   		diff = (((new Date()).getTime() - date.getTime()) / 1000),
-  		day_diff = Math.floor(diff / 86400);
+  		day_diff = Math.floor(diff / 86400)
+  		;
   
+  if (day_diff === -1) return "now"
 	if ( day_diff >= 31) return day_diff + ' days ago';
-		
 	if ( isNaN(day_diff) || day_diff < 0 || day_diff >= 31 ) return;
 	
 	return day_diff == 0 && (
@@ -122,9 +123,14 @@ app.index = function () {
     })
     $('span.collapse').css('left', farthest);
     $('span.expand').css('left', farthest);
+    
+    $('span#expand-all')
+    .css({ left: $('#sidebar-right').position().left + $('#sidebar-right').width() - 20
+         , top: $('div.post-entry').position().top
+        })
   }
   
-  var getPosts = function () {
+  var getPosts = function (cb) {
     var url = '_view/postsByCreated?'+$.param({include_docs:true, descending:true, limit:10, skip:skip});
     request({url:url}, function (err, resp) {
       if (err) throw err
@@ -165,18 +171,48 @@ app.index = function () {
           blogpost.find('div#post-cell').append('<hr class="blogsep"></hr>')
         })()
       }
+      if (!$('#expand-all').length) {
+        var l = function () {
+          $('span.collapse').click();
+          $('span#expand-all-text').remove()
+          $(this).text('▲').unbind('click')
+          .click(function () {
+            $('span.expand').click()
+            $('span#expand-all-text').remove()
+            $(this).text('▼').unbind('click').click(l)
+          })
+        }
+        $('<span id="expand-all">▼</span>')
+        .click(l)
+        .hover(function () {
+          $('<span id="expand-all-text">All</span>')
+          .appendTo($(this).parent())
+          .css({top: $(this).position().top + $(this).height(), left: $(this).position().left})
+        }, function () {
+          $('span#expand-all-text').remove()
+        })
+        .appendTo("#sidebar-right")
+        .css({ left: $('#sidebar-right').position().left + $('#sidebar-right').width() - 20
+             , top: $('div.post-entry').position().top
+             })
+      }
       $('<div><span class="load-more">Load 10 more posts</span></div>').appendTo(container).click(function () {
+        var autoCollapse = false;
         $('span.load-more').remove();
         skip += 10
-        getPosts();
+        if (!$('span.collapse:visible').length) autoCollapse = true
+        getPosts(function () {
+          if (autoCollapse) $('span.collapse').click();
+        });        
       })
       checkAdmin();
+      cb();
     })
   }
   getPosts();
 }
 
-app.showPost = function (x, y) {  
+app.showPost = function () {
   $('span.sec').removeClass('selected-sec').addClass('linkified');
   $("div.info-cell span:exactly('blog')").addClass('selected-sec')
   $('div.info-cell span.linkified').click(function (n) {
@@ -184,10 +220,12 @@ app.showPost = function (x, y) {
   })
   $("div.info-cell span:exactly('blog')").addClass('linkified');
   $('#content').html('');
+  $("#sidebar-right").html('');
   request({url:'/api/'+this.params.shortname}, function (err, doc) {
     if (err) {
       $('#content').append('<div class="error">404 Not Found</div>')
     } else {
+      document.title = doc.title;
       var container = $('<div class="blog-container"></div>').appendTo('#content')
       getPostHtml(doc).appendTo(container);
     }
@@ -196,9 +234,6 @@ app.showPost = function (x, y) {
 }
 app.twitter = function () {
   
-}
-app.newPost = function () {
-  console.log('newpost')
 }
 
 var editorElement = $(
@@ -220,43 +255,70 @@ var editorElement = $(
   '</div>'
 )
 
+var setupEditor = function (doc, previewCallback, saveCallback) {
+  var e = editorElement;
+  $('div#full-content').append(e);
+  e.find('textarea#post-editor-input').val(doc.body_html);
+  e.find('input#post-editor-title').val(doc.title)
+  var updatePreview = function () {
+    if (previewCallback) previewCallback(e)
+    var title = e.find('input#post-editor-title').val()
+      , body = e.find('textarea#post-editor-input').val()
+      ;
+    e.find('div.post-title').text(title);
+    e.find('div.post-body').html(body);
+  }
+  updatePreview(e);
+  e.find('div.post-created-date').text(prettyDate(doc.created))
+  e.find('input#post-editor-tags').val(doc.tags.join(', '))
+  var h = e.find('div#post-editor-preview').height();
+  e.find('textarea').height(h + (h / 4))
+  // Setup change listener
+  e.keyup(function () {
+    updatePreview(e)
+  });
+  $('span.save-button').click(function () {
+    doc.tags = trim(e.find('input#post-editor-tags').val()).split(',');
+    doc.title = e.find('input#post-editor-title').val();
+    doc.body_html = e.find('textarea#post-editor-input').val();
+    if (saveCallback) saveCallback(e);
+    request({url:'/api/'+doc._id, data:doc, type:'PUT'}, function (err, resp) {
+      if (err) throw err;
+      window.location = '/post/'+resp.id;
+    })
+  })
+  return e;
+}
+
 function trim (s) {
-  while (s.indexOf(' ') !== -1) s = s.replace(' ','')
+  while (s.indexOf(' ') !== -1) s = s.replace(' ','');
   return s
 }
 
 app.editPost = function () {
   request({url:window.location.pathname.replace('/edit/', '/api/')}, function (err, doc) {
-    var e = editorElement;
-    $('div#full-content').append(e);
-    e.find('textarea#post-editor-input').val(doc.body_html);
-    e.find('input#post-editor-title').val(doc.title)
-    var updatePreview = function () {
-      var title = e.find('input#post-editor-title').val()
-        , body = e.find('textarea#post-editor-input').val()
-        ;
-      e.find('div.post-title').text(title);
-      e.find('div.post-body').html(body);
-    }
-    updatePreview();
-    e.find('div.post-created-date').text(prettyDate(doc.created))
-    e.find('input#post-editor-tags').val(doc.tags.join(', '))
-    var h = e.find('div#post-editor-preview').height();
-    e.find('textarea').height(h + (h / 4))
-    // Setup change listener
-    e.keyup(function () {
-      updatePreview()
-    });
-    $('span.save-button').click(function () {
-      doc.tags = trim(e.find('input#post-editor-tags').val()).split(',');
-      doc.title = e.find('input#post-editor-title').val();
-      doc.body_html = e.find('textarea#post-editor-input').val();
-      request({url:'/api/'+doc._id, data:doc, type:'PUT'}, function (err, resp) {
-        if (err) throw err;
-        window.location = '/post/'+resp.id;
-      })
-    })
+    var e = setupEditor(doc);
+    
   })
+}
+
+app.newPost = function () {
+  var doc = {tags:[], created:JSON.parse(JSON.stringify(new Date())), type:'blogpost'}
+  var e = setupEditor(doc, 
+  function (e) {
+    doc.shortname = e.find('input#post-editor-title').val();
+    while (doc.shortname.indexOf(' ') !== -1) doc.shortname = doc.shortname.replace(' ', '-')
+    doc.shortname = doc.shortname.replace(/[^a-zA-Z-0-9]+/g,'')
+    doc.shortname = doc.shortname.toLowerCase();
+    doc._id = doc.shortname;
+    e.find('div#shortname').text(doc.shortname)
+  },
+  function (e) {
+    
+  });
+  
+  e.find('div.post-body-container').before('<div id="shortname"></div>')
+  e.find("textarea#post-editor-input").height("800px");
 }
 
 var staticPage = function (name) {
@@ -266,7 +328,7 @@ var staticPage = function (name) {
       ;
     setupSections(name)
     this.render('/partials/'+name+'.html').replace('#content').then(function () {
-      app[name].apply(self, args)
+      if (app[name]) app[name].apply(self, args);
     })
   }
   return r
@@ -274,6 +336,12 @@ var staticPage = function (name) {
 var couchdbUser;
 
 var a = $.sammy(function () {
+  // Cleanup actions bound before the route is run.
+  this.bind("run-route", function () {
+    $('div#sidebar-left').html('&nbsp');
+    $('div#sidebar-right').html('&nbsp');
+  })
+  
   // Static pages
   this.get('#/about', staticPage('about'))
   this.get('#/blog', app.index)
@@ -288,12 +356,14 @@ var a = $.sammy(function () {
   // Show individual posts
   this.get('/post/:shortname', app.showPost);  
   this.get('/post/:shortname/', app.showPost);  
+  this.get('/post/:shortname//', app.showPost);  
   // Edit posts
   this.get('/edit/:shortname', app.editPost);  
   this.get('/edit/:shortname/', app.editPost);
   // Legacy paths
   this.get('/:year/:month/:shortname', app.showPost);
   this.get('/:year/:month/:shortname/', app.showPost);
+  this.get('/:year/:month/:shortname//', app.showPost);
   
   // Index of all databases
   this.get('', app.index);
