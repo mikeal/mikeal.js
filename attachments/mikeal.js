@@ -64,6 +64,8 @@ var getPostHtml = function (doc) {
   ;
 }
 
+
+
 var setupSections = function (name) {
   $('span.sec').removeClass('selected-sec').addClass('linkified');
   $("div.info-cell span:exactly('"+name+"')").addClass('selected-sec').removeClass('linkified');
@@ -112,17 +114,10 @@ app.index = function () {
       n.collapse.css('top', top)
       n.expand.css('top', top)
     })
-    var farthest = 0;
-    $('span.collapse').each(function(i,n) {
-      var l = $(n).position().left
-      if (l > farthest) farthest = l
-    })
-    $('span.expand').each(function(i,n) {
-      var l = $(n).position().left
-      if (l > farthest) farthest = l
-    })
-    $('span.collapse').css('left', farthest);
-    $('span.expand').css('left', farthest);
+    
+    var l = $('#sidebar-right').position().left;
+    $('span.collapse').css('left', l);
+    $('span.expand').css('left', l);    
     
     $('span#expand-all')
     .css({ left: $('#sidebar-right').position().left + $('#sidebar-right').width() - 20
@@ -206,10 +201,14 @@ app.index = function () {
         });        
       })
       checkAdmin();
-      cb();
+      if (cb) cb();
     })
   }
   getPosts();
+  
+  $(window).resize(function () {
+    flowcarrots();
+  })
 }
 
 app.showPost = function () {
@@ -370,4 +369,6 @@ var a = $.sammy(function () {
   this.get("#/", app.index);
 })
 
-$(function () { a.run(); });
+$(function () { 
+  a.run(); 
+});
