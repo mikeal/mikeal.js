@@ -165,13 +165,15 @@ div#post-editor div#post-editor-editor {
 }
 div#post-editor input, div#post-editor textarea {
   width:100%;
+  font: normal 95% Inconsolata;
 } 
 div#post-editor input {
-  font-size:35px; font-family:Josefin Sans Std Light;
-}
-div#post-editor textarea {
+  font-size:30px; 
+/*  font-family:Josefin Sans Std Light;
+*/}
+/*div#post-editor textarea {
   font: normal 95% OFL Sorts Mill GoudyRegular;
-}
+}*/
 
 div#post-editor div#post-editor-preview {
   width:48%;

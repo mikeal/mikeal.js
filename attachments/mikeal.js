@@ -243,11 +243,11 @@ var editorElement = $(
       '<input type="text" id="post-editor-tags"></input>' +
     '</div>' +
     '<div id="post-editor-preview">' +
-      '<div class="post-title"></div>' +
+      '<div class="post-title" contentEditable=true></div>' +
       '<div class="post-created-date">now</div>' +
       '<div class="spacer"></div>' +
       '<div class="post-body-container">' +
-        '<div class="post-body"></div>' +
+        '<div class="post-body" contentEditable=true></div>' +
       '</div>' +
       '<span class="save-button">save</span>' +
     '</div>' +
@@ -267,15 +267,26 @@ var setupEditor = function (doc, previewCallback, saveCallback) {
     e.find('div.post-title').text(title);
     e.find('div.post-body').html(body);
   }
+  var updateInputs = function () {
+    e.find('input#post-editor-title').val(e.find('div.post-title').html())
+    e.find('textarea#post-editor-input').val(e.find('div.post-body').html())
+    if (previewCallback) {updatePreview()}
+  }
   updatePreview(e);
   e.find('div.post-created-date').text(prettyDate(doc.created))
   e.find('input#post-editor-tags').val(doc.tags.join(', '))
   var h = e.find('div#post-editor-preview').height();
   e.find('textarea').height(h + (h / 4))
   // Setup change listener
-  e.keyup(function () {
+  e.find('textarea').keyup(function () {
+    console.log('pickup')
     updatePreview(e)
   });
+  e.find('input').keyup(function () {
+    updatePreview(e)
+  });
+  e.find('div.post-title').keyup(updateInputs);
+  e.find('div.post-body').keyup(updateInputs);
   $('span.save-button').click(function () {
     doc.tags = trim(e.find('input#post-editor-tags').val()).split(',');
     doc.title = e.find('input#post-editor-title').val();
