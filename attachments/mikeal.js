@@ -9,9 +9,9 @@ var request = function (options, callback) {
   if (options.data && typeof options.data == 'object') {
     options.data = JSON.stringify(options.data)
   }
-  options.processData = false;
-  options.dataType = 'json';
-  options.contentType = 'application/json'
+  if (!options.dataType) options.processData = false;
+  if (!options.dataType) options.contentType = 'application/json';
+  if (!options.dataType) options.dataType = 'json';
   $.ajax(options)
 }
 /*
@@ -46,6 +46,30 @@ $.expr[":"].exactly = function(obj, index, meta, stack){
   return ($(obj).text() == meta[3])
 }
 
+$.fn.textSelection = function (cb) {
+  var self = $(this)
+    , ret = {currentText:''}
+    , mm
+    ;
+  var md = function () {
+    mm = function (e) {
+      var t = window.getSelection().toString();
+      if (t !== ret.currentText) {
+        ret.currentText = t; 
+        cb.apply(this, [t, e]);
+      }
+    }
+    self.mousemove(mm)
+  }
+  self.mousedown(md);
+  ret.stop = function () {
+    self.unbind('mousedown', md);
+    self.unbind('mousemove', mm);
+  };
+  ret.cb = cb;
+  return ret;
+}
+
 var getPostHtml = function (doc) {
   return $(
     '<div class="post-entry">' +
@@ -63,8 +87,6 @@ var getPostHtml = function (doc) {
   )
   ;
 }
-
-
 
 var setupSections = function (name) {
   $('span.sec').removeClass('selected-sec').addClass('linkified');
@@ -109,8 +131,11 @@ app.index = function () {
     ;
     
   var flowcarrots = function (i, n) {
-    $('div.post-entry').each(function (i, n) {
+    $('div.post-entry, div.cocktail-post').each(function (i, n) {
       var top = $(n).position().top
+      if (top == 0) {
+        console.log(n)
+      }
       n.collapse.css('top', top)
       n.expand.css('top', top)
     })
@@ -121,7 +146,7 @@ app.index = function () {
     
     $('span#expand-all')
     .css({ left: $('#sidebar-right').position().left + $('#sidebar-right').width() - 20
-         , top: $('div.post-entry').position().top
+         , top: $('div#primary-container').position().top
         })
   }
   
@@ -131,15 +156,37 @@ app.index = function () {
       if (err) throw err
       for (var i=0;i<resp.rows.length;i++) {
         (function () {
-          var blogpost = getPostHtml(resp.rows[i].doc, container).appendTo(container);
+          
+          if (resp.rows[i].doc.type === 'blogpost') {
+            var post = getPostHtml(resp.rows[i].doc, container).appendTo(container)
+              , hidePost = function () {post.find('div#post-cell').hide();}
+              , showPost = function () {post.find('div#post-cell').show();}
+              ;
+          } else if (resp.rows[i].doc.type === 'cocktail') {
+            var doc = resp.rows[i].doc
+              , post = getCocktailHtml(doc, container)
+              , hidePost = function () {
+                  post.find('hr.cocktail-sep').hide();
+                  post.find('div.cocktail-inner').hide();
+                  post.find('div.cocktail-date').hide();
+                  post.find('div.cocktail-title').removeClass('cocktail-title-expanded')
+                }
+              , showPost = function () {
+                  post.find('hr.cocktail-sep').show();
+                  post.find('div.cocktail-inner').show();
+                  post.find('div.cocktail-date').show();
+                  post.find('div.cocktail-title').addClass('cocktail-title-expanded')
+              }
+              ;
+          }
 
-          var top = blogpost.position().top
+          var top = post.position().top
 
           var expand = $('<span class="expand">▲</span>')
           .click(function () {
             $(this).hide();
             expand.collapse.show();
-            blogpost.find('div#post-cell').show();
+            showPost();
             flowcarrots();
           })
           .hide()
@@ -151,19 +198,19 @@ app.index = function () {
           .click(function () {
             $(this).hide();
             collapse.expand.show();
-            blogpost.find('div#post-cell').hide();
+            hidePost();
             flowcarrots();
           })
           .css('top', top)
           .appendTo("#sidebar-right")
           ;
-          
+
           collapse.expand = expand
           expand.collapse = collapse
-          blogpost.get(0).collapse = collapse
-          blogpost.get(0).expand = expand
+          post.get(0).collapse = collapse
+          post.get(0).expand = expand
 
-          blogpost.find('div#post-cell').append('<hr class="blogsep"></hr>')
+          post.find('div#post-cell').append('<hr class="blogsep"></hr>')
         })()
       }
       if (!$('#expand-all').length) {
@@ -188,7 +235,7 @@ app.index = function () {
         })
         .appendTo("#sidebar-right")
         .css({ left: $('#sidebar-right').position().left + $('#sidebar-right').width() - 20
-             , top: $('div.post-entry').position().top
+             , top: $('div#primary-container').position().top
              })
       }
       $('<div><span class="load-more">Load 10 more posts</span></div>').appendTo(container).click(function () {
@@ -279,7 +326,6 @@ var setupEditor = function (doc, previewCallback, saveCallback) {
   e.find('textarea').height(h + (h / 4))
   // Setup change listener
   e.find('textarea').keyup(function () {
-    console.log('pickup')
     updatePreview(e)
   });
   e.find('input').keyup(function () {
@@ -331,6 +377,194 @@ app.newPost = function () {
   e.find("textarea#post-editor-input").height("800px");
 }
 
+app.newThought = function () {
+  request({url:'/_uuids?count=1'}, function (err, resp) {
+    if (err) console.log(err)
+    var uuid = resp.uuids[0]
+      , tiny
+      , params = {format: 'json', longUrl: "http://www.mikealrogers.com/thoughts/"+uuid, 
+                  login: 'mikealrogers', apiKey: "R_53107ba8fb5cb641f6383b927503b3a4",
+                  }
+      ;
+    $('<div class="container">' + 
+        '<div class="thought-spacer">&nbsp</div>' +
+        '<div class="thought">' + 
+          '<div class="thought-inner" contentEditable=true>' +
+          '</div>' +
+        '</div>' +
+        '<div class="thought-spacer">&nbsp</div>' +
+      '</div>')
+    .appendTo('div#content')
+    .parent()
+      .append('<div class="spacer"></div>')
+      .append(
+        '<div class="container">' + 
+          '<div id="thought-tweet"></div><span class="button" id="select-tweet">select</span><div id="tweet-word-count"></div>' + 
+        '</div>')
+    ;
+    
+    // 
+    // request({url:'http://api.bit.ly/v3/shorten?'+$.param(params), dataType:'jsonp'}, function (err, resp) {
+    //   if (err) console.log(err);
+    //   tiny = resp.data.url;
+    //   $('div#thought-tweet').text(tiny).change();
+    // })
+    
+    var c = $("div#tweet-word-count")
+    $('div#thought-tweet').change(function () {
+      c.text($(this).text().length)
+    })
+    var textSel;
+    var s = function () {
+      var ts = $('div.thought-inner').textSelection(function (t, e) {
+        $('div#thought-tweet').text('"'+t+'" http://bit.ly/b0fUul').change();
+        textSel = t;
+      })
+      $('div.thought-inner').attr('contentEditable', false)
+      var self = $(this)
+      $('span#select-tweet')
+      .unbind('click')
+      .click(function () {
+        ts.stop();
+        $('span#select-tweet')
+        .unbind('click')
+        .click(s)
+        ;
+        $('div.thought-inner')
+        .text($('div.thought-inner').text())
+        .html($('div.thought-inner').html().replace(textSel, '<strong>'+textSel+'</strong>'))
+        .attr('contentEditable', true)
+      })
+    }
+    $('span#select-tweet').click(s)
+    $('span#save-button').click(function () {
+      var obj = { _id: uuid, tiny: tiny, body_html: $('div.thought-inner').html() 
+                , title: textSel
+                , tweet: $('div#thought-tweet').text(), created: new Date()}
+      request({url:'/api/'+uuid, type:'PUT', data:obj}, function (err, resp) {
+        
+      })
+    })
+     
+    $('div#thought-tweet').text('http://bit.ly/b0fUul').change();
+  })
+  
+}
+
+var cocktailHtml = '<div class="cocktail-post">' + 
+    '<div class="cocktail-spacer">&nbsp</div>' +
+    '<div class="cocktail">' + 
+      '<div class="cocktail-title cocktail-title-expanded"></div>' +
+      '<hr class="cocktail-sep"></hr>' +
+      '<div class="cocktail-inner">' +
+      '</div>' +
+    '</div>' +
+    '<div class="cocktail-spacer">&nbsp</div>' +
+    '<div class="spacer"></div>' +
+    '<div class="cocktail-date"></div>' +
+  '</div>'
+  
+var getCocktailHtml = function (doc, elem) {
+  var c = $(cocktailHtml);
+  c.find('div.cocktail-title').html('<a href="/cocktail/'+doc._id+'">'+doc.title+'</a>');
+  c.find('div.cocktail-inner').html(doc.body_html);
+  c.find('div.cocktail-date').text('posted '+prettyDate(doc.created))
+  c.appendTo(elem);
+  return c;
+}
+
+
+app.newCocktail = function () {
+  var seperators = ['oz ', 'dash ']
+    , id = this.params.id 
+    , doc = { type: 'cocktail' }
+    ;
+  $(cocktailHtml)
+  .appendTo('div#content')
+  .parent().parent()
+  .append($(
+    '<span class="button">preview</span>'
+    )
+    .click(function () {
+      $('div.cocktail-inner').find('div').each(function (i, n) {
+        if ($(n).attr('class').length === 0) $(n).addClass('cocktail-desc');
+      })
+      
+      $('div.cocktail-inner').find('div.cocktail-desc').each(function (i, n) {
+        n = $(n)
+        var t = n.text();
+        if (!n.find('div.measurement').length) {
+          for (var i=0;i<seperators.length;i++) {
+            if (t.indexOf(seperators[i]) !== -1) {
+              n.html(
+                '<div class="measurement">' + 
+                t.slice(0, t.indexOf(seperators[i])+seperators[i].length) +
+                '</div><div class="cocktail-text">' +
+                t.slice(t.indexOf(seperators[i])+seperators[i].length) +
+                '</div>'
+                )
+              .append('<div class="spacer"></div>')
+              ;
+              return;
+            }
+          } 
+        }
+      })
+      var w = 0;
+      $('div.measurement').each(function (i, n) {
+        if ($(n).width() > w) w = $(n).width();
+      })
+      $('div.measurement').width(w);
+    })
+  )
+  .append($(
+    '<span class="button">save</span>'
+    )
+    .click(function () {
+      $('span.button:exactly("preview")').click();
+      if (!doc._rev) doc.created = new Date();
+      doc.body_html = $('div.cocktail-inner').html();
+      doc.title = $('div.cocktail-title').text();
+      doc.ingredients = {}
+      $('div.cocktail-inner div.cocktail-desc').each(function (i, n) {
+        n = $(n);
+        if (n.find('div.measurement').length) {
+          doc.ingredients[n.find('div.cocktail-text').text()] = n.find('div.measurement').text();
+        }
+      })
+      request({url:'/api', type:'POST', data:JSON.stringify(doc)}, function (err, resp) {
+        if (err) throw err;
+        window.location = '/cocktail/'+resp.id;
+      })
+    })
+  )
+  ;
+  $('div.cocktail-title').attr('contentEditable', true);
+  $('div.cocktail-inner').attr('contentEditable', true);
+  if (id) {
+    request({url:'/api/'+id}, function (err, obj) {
+      doc = obj
+      $('div.cocktail-inner').html(doc.body_html)
+      $('div.cocktail-title').text(doc.title)
+    })
+  }
+}
+app.showCocktail = function () {
+  var id = this.params.id;
+  $('span.sec').removeClass('selected-sec').addClass('linkified');
+  $("div.info-cell span:exactly('blog')").addClass('selected-sec')
+  $('div.info-cell span.linkified').click(function (n) {
+    window.location = '/#/'+$(this).text();
+  })
+  $("div.info-cell span:exactly('blog')").addClass('linkified');
+  $('#content').html('');
+  $("#sidebar-right").html('');
+  request({url:'/api/'+id}, function (err, resp) {
+    getCocktailHtml(resp, $('div#content'))
+  })
+  checkAdmin();
+}
+
 var staticPage = function (name) {
   var r = function () {
     var self = this
@@ -362,6 +596,15 @@ var a = $.sammy(function () {
   
   // Create new post
   this.get('/new', app.newPost);
+  this.get('/newThought', app.newThought);
+  this.get('/newCocktail', app.newCocktail);
+  
+  // Resume
+  this.get('/resume', function () {})
+  
+  // Show cocktail
+  this.get('/cocktail/:id', app.showCocktail);
+  this.get('/cocktail/edit/:id', app.newCocktail);
 
   // Show individual posts
   this.get('/post/:shortname', app.showPost);  

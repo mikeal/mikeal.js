@@ -1,0 +1,110 @@
+@font-face {
+  font-family: 'OFL Sorts Mill Goudy TT';
+  font-style: normal;
+  font-weight: normal;
+  src: local('OFL Sorts Mill Goudy TT'), local('OFLGoudyStMTT'), url('http://themes.googleusercontent.com/font?kit=9ZZVVBRCceNnPBXqWLH8IBeHOylGMxdcwbe4vXI079w') format('truetype');
+}
+
+@font-face {
+  font-family: 'Nobile';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Nobile'), url('http://themes.googleusercontent.com/font?kit=lC_lPi1ddtN38iXTCRh6ow') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Inconsolata'), url('http://themes.googleusercontent.com/font?kit=7bMKuoy6Nh0ft0SHnIGMuaCWcynf_cDxXwCLxiixG1c') format('truetype');
+}
+
+html {font: normal 100% OFL Sorts Mill Goudy TT;}
+
+body#resume div#summary {
+  
+}
+
+div.fullwidth {
+  width:100%;
+}
+
+body#resume div#info {
+  text-align:center;
+  padding-top:5px;
+  padding-bottom:40px;
+  font-size:20px;
+}
+
+body#resume div.title {
+  font-size:24px;
+  padding-left:10px;
+  color:#4F4F4F;
+  text-align:center;
+/*  background-color:#C4C4C4;*/
+  
+/*  -moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  border-radius: 15px;
+  border-style:solid;
+  border-width:3px;
+  border-color:#D3D3D3;*/
+}
+
+body#resume span.title {
+  
+}
+
+body#resume div#titlename {
+  font-size:30px;
+}
+body#resume div#email {
+  font-size:16px;
+}
+
+body#resume div.description {
+  padding-left:40px;
+  padding-top:10px;
+}
+
+body#resume div.exp-title {
+  float:left;
+  width:20%;
+  padding-top:16px;
+}
+body#resume div.exp-desc {
+  float:left;
+  width:70%;
+  margin-top:0px;
+  padding-top:0px;
+}
+div.exp-spacer {
+  padding-bottom:10px;
+}
+
+body#resume div.exp {
+  height:100%;
+  width:100%;
+}
+
+body#resume div.exp-priors {
+  padding-left:40px;
+}
+
+body#resume div.job-name {
+  font-size:20px;
+  font-family:Nobile;
+}
+body#resume div.job-title {
+  font-size:18px;
+  
+}
+body#resume div.job-name a:link, body#resume div.job-name a:visited {
+  color:black;
+}
+
+code {
+  font-family:Inconsolata;
+}
+
+

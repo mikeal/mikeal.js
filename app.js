@@ -6,6 +6,10 @@ ddoc = { _id:'_design/app'
   , rewrites : [
         {from:"/", to:'index.html'}
       , {from:"/new", to:'index.html'}
+      , {from:"/resume", to:'resume.html'}
+      , {from:"/newThought", to:'index.html'}
+      , {from:"/newCocktail", to:'index.html'}
+      , {from:"/cocktail/*", to:'index.html'}
       , {from:"/edit/*", to:'index.html'}
       , {from:"/post/*", to:'index.html'}
       , {from:"/2010/*", to:'index.html'}
@@ -18,7 +22,7 @@ ddoc = { _id:'_design/app'
   }
 
 ddoc.views = {postsByCreated: {map: function (doc) {
-  if (doc.type == 'blogpost') emit(doc.created, 1);
+  if (doc.type == 'blogpost' || doc.type == 'cocktail') emit(doc.created, 1);
 }}}
 
 ddoc.validate_doc_update = function (newDoc, oldDoc, userCtx) {   
